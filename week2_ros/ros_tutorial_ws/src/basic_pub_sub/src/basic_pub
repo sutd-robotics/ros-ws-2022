@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+'''
+Shebang: execute as python script
+'''
+
+import rospy
+from std_msgs.msg import String
+'''
+rospy:      API to interface with ROS Topics, Services, Parameters
+std_msgs:   library containing common message definitions
+'''
+
+def talker():
+    pub = rospy.Publisher('chatter', String, queue_size = 10)
+    '''
+    rospy.init_node([name: str], [anonymous: bool])
+        Defines name of node to communicate to ROS Master
+        Anonymous lets ROS to generate unique names when we create multiple instances 
+            of the node
+    '''
+    
+    rospy.init_node('talker', anonymous = True)
+    '''
+    rospy.Publisher([name: str], [type: msg def], [queue_size: int]) 
+        Create a publisher object
+        Publish string messages to topic '/chatter' with max queue of 10
+    '''
+    
+    rate = rospy.Rate(10) # 10hz
+    '''
+    rospy.Rate([freq: int])
+        Rate object to help loop at fixed frequency with .sleep method
+        Works as long as execution < 1/f
+    '''
+    
+    # Create message object
+    string_msg = String()
+    
+    while not rospy.is_shutdown():
+        hello_str = "hello world!"
+        rospy.loginfo(hello_str)
+        
+        # Attach data to message field
+        string_msg.data = hello_str
+        
+        # Publish
+        pub.publish(string_msg)
+        rate.sleep()
+    '''
+    rospy.is_shutdown()
+        check ROS internals to see if program should exit
+    
+    rospy.loginfo([log: String])
+        Write logs to screen, logfile and rosout
+
+    [rospy.Publisher].publish([message: msg])
+        Publish message to defined topic
+    
+    [rospy.Rate].sleep()
+        Pause execution just enough to maintain frequency
+    '''
+
+if __name__ == '__main__':
+    try:
+        talker()
+    except rospy.ROSInterruptException:
+        pass    
+    '''
+    rospy.ROSInterruptException
+        Capture interruptions to program to terminate gracefully
+        e.g. SIGINT (ctrl-C), shutdown
+    '''
